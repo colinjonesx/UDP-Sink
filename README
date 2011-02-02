@@ -1,0 +1,5 @@
+This project simply creates a node.js handler that listens on a UDP socket
+recieves packets from any source and writes them to a SQLite DB.
+
+N.B. This is a learning project for me, there maybe poor practice and bugs
+while I get to grips with node.js and associated technologies.
