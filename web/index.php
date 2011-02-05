@@ -33,7 +33,7 @@ if(isset($_GET['db'])){
      
     $(document).ready(function(){
       var now = (new Date()).getTime(),
-          period =  3600000,
+          period =  <?php echo (isset($_GET['dt'])):?$_GET['dt']:360000; ?>,
           dataT = {},
           d=[],
           lastTime = new Date(parseInt(events[events.length - 1].created_at)),
