@@ -70,11 +70,10 @@ exports.processMessage = function(msg){
   var parts = msg.split('|'),
       conf = appConf.apps[parts[3]],
       eventSql = "INSERT INTO event (source, type, created_at)"
-                +" VALUES ('"+parts[1]+"','"+parts[3]+"',"+parts[2]+");";
+                +" VALUES ('"+parts[1]+"','"+parts[3]+"',"+parseInt(parts[2])+");";
   
   if(conf){
-    
-    console.log(eventSql);
+    //console.log(eventSql);
     //console.log(process.memoryUsage().heapUsed);
     var eventId = _dba.query(eventSql,
       function(result){
@@ -89,8 +88,10 @@ exports.processMessage = function(msg){
           [ eventId, details[i][0], details[i][1]]
         );
       }
+      // if the packet has no details enter orig string for summarisation
       
-      _dba.query("UPDATE event SET SUMMARY = ?;",[conf.generateSummary(details)]);
+      _dba.query("UPDATE event SET SUMMARY = ? WHERE id = ?;",
+        [conf.generateSummary(details,parts[4]),eventId]);
       console.log('Entry Added');
     }    
   }else{

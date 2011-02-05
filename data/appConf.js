@@ -33,7 +33,26 @@ exports.appConf = {
           }
         }
         return "{cpu:"+cpu+",mem:"+mem+"}";
-      }    
+      }
+    },
+    OM2APP:{
+      filenameSuffix:'om2app',
+      prepared:false,
+      processData:function(dataString){
+        var items = dataString.split(':');
+        if(items.length != 5) return [['dataError:',data]];
+        return [
+          ['m',items[0]],
+          ['a',items[1]],
+          ['d',items[2]],
+          ['u',items[3]],
+          ['t',items[4]]
+          ];
+      },
+      generateSummary:function(data,orig){
+        
+        return orig;
+      }
     }
   }
-};
+}; 

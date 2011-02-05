@@ -21,5 +21,5 @@ if(0){
   recvMsg(testMsg,{address:'ADDRESS',port:0,size:testMsg.length},this);
 }else{
   sock = dgram.createSocket("udp4", recvMsg);
-  sock.bind(9999, '0.0.0.0');
+  sock.bind(5224, '0.0.0.0');
 }
