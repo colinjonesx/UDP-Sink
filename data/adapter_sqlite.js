@@ -1,5 +1,5 @@
 var sys    = require('sys'),
-    sqlite = require('sqlite');
+    sqlite = require('../lib/sqlite');
 
 var _dba = null,
     appConf = require('./appConf').appConf;
