@@ -15,7 +15,14 @@ foreach( scandir('../data') as $filename ){
 <?php
 if(isset($_GET['db'])){
   echo "<p>Database ".$_GET['db']." selected</p>";
-  $db = new PDO('sqlite:../data/'.$_GET['db']);
+  try {    
+    $db = new PDO('sqlite:../data/'.$_GET['db']);
+  } catch (PDOException $e) {
+    echo 'Connection failed: ' . $e->getMessage();
+  }
+
+
+
   $event_rs = $db->query('SELECT * FROM event')->fetchAll(PDO::FETCH_ASSOC);
   // id, source, type, created_at, summary
   echo "<p>".count($event_rs)." event records in db</p>";
@@ -33,7 +40,7 @@ if(isset($_GET['db'])){
      
     $(document).ready(function(){
       var now = (new Date()).getTime(),
-          period =  <?php echo (isset($_GET['dt']))?$_GET['dt']:360000; ?>,
+          period =  <?php echo (isset($_GET['dt']))?$_GET['dt']:3600000; ?>,
           dataT = {},
           d=[],
           lastTime = new Date(parseInt(events[events.length - 1].created_at)),
