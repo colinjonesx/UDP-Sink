@@ -1,5 +1,15 @@
 exports.appConf = {
   apps:{
+    TEMPAPP:{
+      filenameSuffix:'temp',
+      prepared:false,
+      processData:function(data){
+        return [];
+        },
+      generateSummary:function(data, orig){
+        return orig
+        }
+      },
     TESTAPP:{
       filenameSuffix:'test',
       prepared:false,

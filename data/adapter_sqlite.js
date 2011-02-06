@@ -64,13 +64,21 @@ prepareDb = function(appname){
           });
       }
   });
+  _dba.close();
   return true;// db now ready for entries...
 }
 exports.processMessage = function(msg){
+  // expecting message of form:
+  // {size}|{source}|{ts}|{type}|{data} 
+  
   var parts = msg.split('|'),
       conf = appConf.apps[parts[3]],
+      ts = parseInt(parts[2]) || new Date().getTime(),
       eventSql = "INSERT INTO event (source, type, created_at)"
-                +" VALUES ('"+parts[1]+"','"+parts[3]+"',"+parseInt(parts[2])+");";
+                +" VALUES ('"+parts[1]+"','"+parts[3]+"',"+ts+");";
+  
+  _dba = sqlite.openDatabaseSync(
+    "./data/udp-sink_"+appConf.apps[parts[3]].filenameSuffix+".sqlite.db");
   
   if(conf){
     //console.log(eventSql);
@@ -88,8 +96,7 @@ exports.processMessage = function(msg){
           [ eventId, details[i][0], details[i][1]]
         );
       }
-      // if the packet has no details enter orig string for summarisation
-      
+            
       _dba.query("UPDATE event SET SUMMARY = ? WHERE id = ?;",
         [conf.generateSummary(details,parts[4]),eventId]);
       console.log('Entry Added');
