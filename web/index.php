@@ -118,13 +118,35 @@
 	    grid: { hoverable: true, clickable: true }
 	  };
 	  $.plot( $("#placeholder"), d, plotopts );
-      
+      $('#autoRange').buttonset();
+      $('#autoRange input').click(function(e){
+          console.log(arguments);
+          switch($(e.currentTarget).text()){
+              case 'last week':
+                  $( "#dateRange" ).slider('values',0,new Date().getTime()-7*24*3600000);
+                  $( "#dateRange" ).slider('stop');
+                  break;
+              case 'last day':
+                  $( "#dateRange" ).slider('values',0,new Date().getTime()-24*3600000);
+                  break;
+              case 'last hour':
+                  $( "#dateRange" ).slider('values',0,new Date().getTime()-600000);
+                  break;
+          }
+          });
 	});
       
       </script>
       <p id="summary"></p>
       <div id="placeholder" style="width:800px; height:400px;"></div>
+      
       <div id="dateRange" style="width:800px;"></div>
+      <div id="autoRange">
+      	<input type="radio" id="radio1" name="autoRange" /><label for="radio1">last week</label>
+      	<input type="radio" id="radio2" name="autoRange" /><label for="radio2">last day</label>
+      	<input type="radio" id="radio3" name="autoRange" /><label for="radio3">last hour</label>
+      </div>
+      
       <div id="dateSelection">Showing all dates</div>
       <?php
       //print_r($event_rs);
