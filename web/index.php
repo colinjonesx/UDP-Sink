@@ -2,7 +2,7 @@
     <head><title>UDP-Sink Rough Results</title>
       <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
       <script type="text/javascript" src="../jquery.flot.js"></script>
-      <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>
+      <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.js"></script>
       <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/redmond/jquery-ui.css" >
       <style type="text/css">
 	body{font-family:Tahoma; font-size:10pt;}
@@ -39,19 +39,20 @@
 	      }
 	      return -1;
 	    },
-	    minDate = 0;
-	    
-	
+	    minDate = 9999999999999, maxDate = 0;
 	$(document).ready(function(){
 	  var now = (new Date()).getTime(),
 	      period =  <?php echo (isset($_GET['dt']))?$_GET['dt']:(7*24*3600000); ?>,
 	      dataT = {},
 	      d=[],
-	      lastTime = new Date(parseInt(events[events.length - 1].created_at)),
+          lastTime = new Date(parseInt(events[events.length - 1].created_at)),
 	      fevents = $.grep(events,function(el, elind){
-		//var now = (new Date()).getTime();
-		//console.log(el.poller_ts,now);
-		return el.created_at > (now - period);
+            var createdAt = parseInt(el.created_at);
+            minDate = (minDate < createdAt) ? minDate : createdAt;
+            maxDate = (maxDate > createdAt) ? maxDate : createdAt;
+    		//var now = (new Date()).getTime();
+    		//console.log(el.poller_ts,now);
+    		return el.created_at > (now - period);
 	      }),
 	      feventsIds=[];
 	  $.each(fevents,function(i,e){
@@ -78,15 +79,23 @@
 	    console.log(d);
 	    $( "#dateRange" ).slider({
 			      range: true,
-			      min: 0,
-			      max: 500,
-			      values: [ 75, 300 ],
+			      min: minDate,
+			      max: maxDate,
+			      values: [ minDate, maxDate ],
 			      slide: function( event, ui ) {
-				      $( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
-			      }
+				      //$( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
+    			      $( "#dateSelection" ).html( new Date(ui.values[ 0 ]).toString() + "<br>" + new Date(ui.values[ 1 ]).toString() );
+			      },
+    		      stop: function( event, ui ) {
+    	              $( "#dateSelection" ).html( new Date(ui.values[ 0 ]).toString() + "<br>" + new Date(ui.values[ 1 ]).toString() );
+                      $.plot( $("#placeholder"), d, $.extend(true,{xaxis:{
+                      min:ui.values[0],
+                      max:ui.values[1]
+                      }},plotopts) );
+    	          }
 		      });
-		      $( "#amount" ).val( "$" + $( "#slider-range" ).slider( "values", 0 ) +
-			      " - $" + $( "#slider-range" ).slider( "values", 1 ) );
+		      //$( "#amount" ).val( "$" + $( "#slider-range" ).slider( "values", 0 ) +
+			  //    " - $" + $( "#slider-range" ).slider( "values", 1 ) );
 	//    console.log(feventsIds);
 	    $('#summary').html('No of events logged/filtered: '+events.length+'/'+fevents.length+'<br>Last one: '+lastTime);
 	    //$.getJSON('data.php',{request:'summary',eventIds:feventsIds},function(d, t, req){
@@ -108,18 +117,15 @@
 	    },
 	    grid: { hoverable: true, clickable: true }
 	  };
-	  $.plot(
-	    $("#placeholder"),
-	    d,
-	    plotopts
-	  );
+	  $.plot( $("#placeholder"), d, plotopts );
       
 	});
       
       </script>
       <p id="summary"></p>
       <div id="placeholder" style="width:800px; height:400px;"></div>
-      <div id="dateRange"></div>
+      <div id="dateRange" style="width:800px;"></div>
+      <div id="dateSelection">Showing all dates</div>
       <?php
       //print_r($event_rs);
     }
