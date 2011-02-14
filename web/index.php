@@ -59,13 +59,13 @@
 	  $.each(fevents,function(i,e){
 	      feventsIds.push(e.id);
 	      var items = e.summary.split(':'),
-		      seriesName = items[0]+'->'+items[1],
-    	      dataPoint = items[2];
+		  seriesName = items[0]+'->'+items[1],
+    	          dataPoint = items[2];
     	      
-    	  if(items.length == 1){
-              seriesName = 'series';
-              dataPoint = items[0];
-    	  }
+		if(items.length == 1){
+		    seriesName = 'series';
+		    dataPoint = items[0];
+		}
 		  if(!dataT[seriesName]) dataT[seriesName] = [];
     	  
     	  dataT[seriesName].push([parseInt(e.created_at),dataPoint,e.summary]);
@@ -140,7 +140,7 @@
       plotAccordingToChoices();
       $("#placeholder").bind("plotclick", function (event, pos, item) {
           if (item) {
-              $("#clickData").text("You clicked point " + item.dataIndex + " in " + item.series.label + ".<br>"+item.series.data[item.dataIndex][2]);
+              $("#clickData").html("You clicked point " + item.dataIndex + " in " + item.series.label + ".<br>"+item.series.data[item.dataIndex][2]);
               //console.log(item );
               //plot.highlight(item.series, item.datapoint);
           }
