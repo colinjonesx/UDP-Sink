@@ -45,6 +45,7 @@
 	      period =  <?php echo (isset($_GET['dt']))?$_GET['dt']:(7*24*3600000); ?>,
 	      dataT = {},
 	      d=[],
+          choiceContainer = $("#choices"),          
           lastTime = new Date(parseInt(events[events.length - 1].created_at)),
 	      fevents = $.grep(events,function(el, elind){
             var createdAt = parseInt(el.created_at);
@@ -67,16 +68,26 @@
     	  }
 		  if(!dataT[seriesName]) dataT[seriesName] = [];
     	  
-    	  dataT[seriesName].push([parseInt(e.created_at),dataPoint]);
-	      
+    	  dataT[seriesName].push([parseInt(e.created_at),dataPoint,e.summary]);
 	    });
-	    for(var series in dataT){
-	      d.push({
-		label:series,
-		data:dataT[series]
-		});
+        var i = 0;
+        $.each(dataT, function(key, val) {
+            val.color = i;
+            ++i;
+        });
+        
+	    for (var series in dataT){
+          choiceContainer.append('<br/><input type="checkbox" name="' + series +
+          '" checked="checked" id="id' + series + '">' +
+          '<label for="id' + series + '">'
+           + series + '</label>');  
+	    //  d.push({
+    	//	label:series,
+    	//	data:dataT[series]
+    //		});
 	    }
-	    console.log(d);
+        choiceContainer.find("input").click(plotAccordingToChoices);
+	    //console.log(d);
 	    $( "#dateRange" ).slider({
 			      range: true,
 			      min: minDate,
@@ -88,52 +99,52 @@
 			      },
     		      stop: function( event, ui ) {
     	              $( "#dateSelection" ).html( new Date(ui.values[ 0 ]).toString() + "<br>" + new Date(ui.values[ 1 ]).toString() );
-                      $.plot( $("#placeholder"), d, $.extend(true,{xaxis:{
+                      plotAccordingToChoices({xaxis:{
                       min:ui.values[0],
                       max:ui.values[1]
-                      }},plotopts) );
+                      }});
     	          }
 		      });
 		      //$( "#amount" ).val( "$" + $( "#slider-range" ).slider( "values", 0 ) +
 			  //    " - $" + $( "#slider-range" ).slider( "values", 1 ) );
 	//    console.log(feventsIds);
 	    $('#summary').html('No of events logged/filtered: '+events.length+'/'+fevents.length+'<br>Last one: '+lastTime);
-	    //$.getJSON('data.php',{request:'summary',eventIds:feventsIds},function(d, t, req){
-	    //  var c =[], m = [];
-	    //  $.each(d, function(ind, el){
-	    //    var ts = events[getIndex(ind,events)].poller_ts * 1000;
-	    //    c.push([ts, el[0]]);
-	    //    m.push([ts, el[1]]);
-	    //  });
-	    //  console.log(c);
-	    //  $.plot($("#placeholder"), [c,m], { xaxis: { mode: "time" },yaxis:{min:0} });
-	  //});
-	  //d = [[1295074631000,22],[1295064631000,44]];
 	  var plotopts = {
 	    xaxis: { mode: "time" },
 	    series: {
 		lines: { show: true },
-		points: { show: true }
+		points: { show: false }
 	    },
 	    grid: { hoverable: true, clickable: true }
 	  };
-	  $.plot( $("#placeholder"), d, plotopts );
-      $('#autoRange').buttonset();
-      $('#autoRange input').click(function(e){
-          console.log(arguments);
-          switch($(e.currentTarget).text()){
-              case 'last week':
-                  $( "#dateRange" ).slider('values',0,new Date().getTime()-7*24*3600000);
-                  $( "#dateRange" ).slider('stop');
-                  break;
-              case 'last day':
-                  $( "#dateRange" ).slider('values',0,new Date().getTime()-24*3600000);
-                  break;
-              case 'last hour':
-                  $( "#dateRange" ).slider('values',0,new Date().getTime()-600000);
-                  break;
-          }
+	  //$.plot( $("#placeholder"), d, plotopts );
+      function plotAccordingToChoices(opts) {
+          
+          var data = [],
+              opts = opts || {};
+      
+          choiceContainer.find("input:checked").each(function () {
+              var key = $(this).attr("name");
+              if (key && dataT[key])
+                  data.push({
+                      label:key,
+                      data:dataT[key]
+                      });
           });
+          
+          if (data.length > 0)
+              $.plot($("#placeholder"), data, $.extend(true,opts,plotopts));
+      }
+      
+      plotAccordingToChoices();
+      $("#placeholder").bind("plotclick", function (event, pos, item) {
+          if (item) {
+              $("#clickData").text("You clicked point " + item.dataIndex + " in " + item.series.label + ".<br>"+item.series.data[item.dataIndex][2]);
+              //console.log(item );
+              //plot.highlight(item.series, item.datapoint);
+          }
+      });
+      
 	});
       
       </script>
@@ -141,13 +152,11 @@
       <div id="placeholder" style="width:800px; height:400px;"></div>
       
       <div id="dateRange" style="width:800px;"></div>
-      <div id="autoRange">
-      	<input type="radio" id="radio1" name="autoRange" /><label for="radio1">last week</label>
-      	<input type="radio" id="radio2" name="autoRange" /><label for="radio2">last day</label>
-      	<input type="radio" id="radio3" name="autoRange" /><label for="radio3">last hour</label>
-      </div>
-      
+          
       <div id="dateSelection">Showing all dates</div>
+      <div id="clickData"></div>
+      <p id="choices">Show:</p>
+      
       <?php
       //print_r($event_rs);
     }
