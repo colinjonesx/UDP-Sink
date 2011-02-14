@@ -115,7 +115,8 @@
 		lines: { show: true },
 		points: { show: false }
 	    },
-	    grid: { hoverable: true, clickable: true }
+	    grid: { hoverable: true, clickable: true },
+            legend:{container:'#legend'}
 	  };
 	  //$.plot( $("#placeholder"), d, plotopts );
       function plotAccordingToChoices(opts) {
@@ -149,7 +150,8 @@
       
       </script>
       <p id="summary"></p>
-      <div id="placeholder" style="width:800px; height:400px;"></div>
+      <div id="placeholder" style="float:left;width:800px; height:400px;"></div>
+      <div id="legend" style="clear:right;width:30px; height:400px;"></div>
       
       <div id="dateRange" style="width:800px;"></div>
           
